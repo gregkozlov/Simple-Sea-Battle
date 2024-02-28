@@ -30,8 +30,7 @@ const generateShips = () => {
 };
 
 const App = () => {
-  const savedShipsMap = generateShips();
-  const [ships, setShips] = useState(savedShipsMap);
+  const [ships, setShips] = useState(generateShips());
 
   const refreshGrid = () => {
     const resetedBoard = ships.map(row => {
