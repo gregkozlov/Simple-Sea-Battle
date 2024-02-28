@@ -29,6 +29,16 @@ const generateShips = () => {
   return ships;
 };
 
+const getCellBackgroundColor = (ship: Ship): string => {
+  if (!ship.click) {
+    return "blue";
+  } else if (ship.hit) {
+    return "red";
+  } else {
+    return "white";
+  }
+};
+
 const App = () => {
   const [ships, setShips] = useState(generateShips());
 
@@ -67,11 +77,7 @@ const App = () => {
                   className={`grid-item`}
                   onClick={() => showClickResult(ship)}
                   style={{
-                    backgroundColor: !ship.click
-                      ? "blue"
-                      : ship.hit
-                      ? "red"
-                      : "white",
+                    backgroundColor: getCellBackgroundColor(ship),
                   }}
                 />
               );
