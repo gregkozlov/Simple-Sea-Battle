@@ -3,41 +3,57 @@ import "./style.css";
 
 const gridSize = 10;
 
+type Ship = {
+  cellId: number;
+  ship: boolean;
+  click: boolean;
+  hit: boolean;
+};
+
 const generateShips = () => {
-  const ships: number[][] = [];
+  let cellId = 0;
+  const ships: Ship[][] = [];
+
   for (let i = 0; i < gridSize; i++) {
     ships.push([]);
     for (let j = 0; j < gridSize; j++) {
-      ships[i].push(Math.random() < 0.5 ? 1 : 0);
+      ships[i].push({
+        cellId: cellId++,
+        ship: Math.random() < 0.3,
+        click: false,
+        hit: false,
+      });
     }
   }
+
   return ships;
 };
 
 const App = () => {
-  const [ships, setShips] = useState(generateShips());
-
-  const showClickResult = (row: number, col: number) => {
-    const content = ships[row][col];
-    const gridItem = document.querySelector(
-      `.cell-${row}-${col}`,
-    ) as HTMLElement;
-
-    if (content === 1) {
-      gridItem.style.backgroundColor = "red";
-    } else {
-      gridItem.style.backgroundColor = "white";
-    }
-  };
+  const savedShipsMap = generateShips();
+  const [ships, setShips] = useState(savedShipsMap);
 
   const refreshGrid = () => {
-    setShips(generateShips());
+    const resetedBoard = ships.map(row => {
+      return row.map(cell => {
+        return { ...cell, click: false, hit: false };
+      });
+    });
 
-    const gridItems = document.querySelectorAll(
-      ".grid-item",
-    ) as NodeListOf<HTMLElement>;
+    setShips(resetedBoard);
+  };
 
-    gridItems.forEach(item => (item.style.backgroundColor = "blue"));
+  const showClickResult = (ship: Ship) => {
+    const updatedBoard = ships.filter(row => {
+      return row.map(cell => {
+        if (cell.cellId === ship.cellId) {
+          cell.click = true;
+          cell.hit = cell.ship;
+        }
+      });
+    });
+
+    setShips(updatedBoard);
   };
 
   return (
@@ -45,13 +61,19 @@ const App = () => {
       <div className="grid">
         {ships.map((row, rowIndex) => (
           <div key={rowIndex} className="grid-row">
-            {row.map((_, colIndex) => {
+            {row.map((ship, colIndex) => {
               return (
                 <div
                   key={`${rowIndex}-${colIndex}`}
-                  className={`grid-item cell-${rowIndex}-${colIndex}`}
-                  onClick={() => showClickResult(rowIndex, colIndex)}
-                  style={{ backgroundColor: "blue" }}
+                  className={`grid-item`}
+                  onClick={() => showClickResult(ship)}
+                  style={{
+                    backgroundColor: !ship.click
+                      ? "blue"
+                      : ship.hit
+                      ? "red"
+                      : "white",
+                  }}
                 />
               );
             })}
